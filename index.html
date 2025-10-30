@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 007: Cybersecurity Hunt</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for the terminal theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+        }
+
+        .terminal {
+            font-family: 'Share+Tech+Mono', monospace;
+        }
+
+        /* Glow effect */
+        .glow {
+            text-shadow: 0 0 8px #06b6d4, 0 0 12px #06b6d4;
+        }
+
+        /* Flicker animation for the terminal caret */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .caret {
+            animation: flicker 1s step-end infinite;
+        }
+
+        /* Fade-in animation for steps */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step-content {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Custom styles for the phishing email */
+        .phishing-email {
+            background-color: #ffffff;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom styles for the file explorer */
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .file-item:hover {
+            background-color: #1f2937;
+        }
+        .file-item.selected {
+            background-color: #0891b2;
+            color: white;
+        }
+        
+        /* Custom styles for the phone call */
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+        }
+        .ringing {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="terminal w-full max-w-3xl bg-black border-2 border-cyan-700 rounded-lg shadow-2xl shadow-cyan-500/30 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-cyan-700">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+            </div>
+            <span class="text-sm text-cyan-400">AGENT_CONSOLE::CYBER_HUNT</span>
+            <div class="w-16"></div>
+        </div>
+
+        <!-- Hero Banner (logo + ANONYMOUS title) -->
+        <div id="hero-banner" class="px-6 md:px-8 py-6 bg-black/40 border-b border-cyan-700 text-center">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                <!-- Logo (relative path inside repo) -->
+                <img src="assets/logo.svg" alt="Logo" class="w-24 h-24 md:w-28 md:h-28 rounded-md shadow-lg" style="filter: drop-shadow(0 6px 12px rgba(6,182,212,0.25));">
+
+                <div>
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-white glow" style="letter-spacing: 6px;">ANONYMOUS</h1>
+                    <p class="mt-2 text-lg md:text-2xl font-bold text-cyan-300">UNMASK THE TREASURE — <span class="text-white">Dare to explore the unknown</span></p>
+                    <p class="mt-1 text-sm text-gray-400">The hunt begins. Stay sharp, stay invisible.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Content Area -->
+        <div id="game-content" class="p-6 md:p-8">
+            <!-- Content will be injected by JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        // DOM element
+        const gameContent = document.getElementById('game-content');
+
+        // Game State
+        let currentStep = 0;
+
+        // Function to show messages
+        function showMessage(message, isError = true) {
+            let messageEl = document.getElementById('message-area');
+            if (!messageEl) {
+                messageEl = document.createElement('div');
+                messageEl.id = 'message-area';
+                messageEl.className = 'mt-4 text-center text-lg';
+                const challengeArea = document.querySelector('.challenge-area');
+                if (challengeArea) {
+                    challengeArea.appendChild(messageEl);
+                } else {
+                    gameContent.appendChild(messageEl);
+                }
+            }
+            messageEl.textContent = message;
+            messageEl.className = `mt-4 text-center text-lg ${isError ? 'text-red-500' : 'text-green-500'} glow`;
+            
+            if (!isError) {
+                // Auto-advance on success
+                setTimeout(() => {
+                    renderStep(currentStep + 1);
+                }, 1500);
+            }
+        }
+
+        // --- Step Definitions ---
+        const steps = [
+            // --- Step 0: Introduction ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content text-center">
+                            <h2 class="text-2xl md:text-3xl text-cyan-400 glow mb-4">MISSION BRIEFING</h2>
+                            <p class="text-lg text-gray-300 mb-6">Welcome, Agent. We've been tracking a notorious cybercriminal known as 'The Cipher'. We just intercepted their first communication. It's encrypted, of course. This is your first test.</p>
+                            <p class="text-lg text-gray-300 mb-8">Your mission: Decode their messages, bypass their traps, and track them down. The fate of the digital world is in your hands.</p>
+                            <button id="start-btn" class="w-full md:w-auto bg-cyan-600 text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-cyan-500 transition duration-300">
+                                ACCEPT MISSION
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('start-btn').addEventListener('click', () => {
+                        renderStep(1);
+                    });
+                }
+            },
+
+            // --- Step 1: Caesar Cipher ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 1: THE GATEWAY</h2>
+                            <p class="text-gray-300 mb-6">The intercepted message from 'The Cipher'. It looks like a simple substitution cipher. Find the key, decode it, and report back.</p>
+                            <div class="challenge-area">
+                                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
+                                    <p class="text-green-400 text-lg">> Uifsf jt b tusfbu csbtfmfu jo uif dztcfs xpsme. Gjstu, mfbso uif cbtjdt.</p>
+                                </div>
+                                <label for="step1-input" class="block text-cyan-400 mb-2">DECRYPTED MESSAGE:</label>
+                                <input type="text" id="step1-input" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Enter decoded text here...">
+                                <button id="step1-btn" class="w-full mt-4 bg-cyan-600 text-black font-bold py-2 px-6 rounded-lg hover:bg-cyan-500 transition">
+                                    DECRYPT
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('step1-btn').addEventListener('click', () => {
+                        const answer = document.getElementById('step1-input').value.trim().toLowerCase();
+                        const solution = "there is a secret bracelet in the cyber world. first, learn the basics.";
+                        if (answer === solution) {
+                            showMessage("ACCESS GRANTED. The 'bracelet' must be a clue. We're one step closer.", false);
+                        } else {
+                            showMessage("DECRYPTION FAILED. Check your cipher shift. Try again.", true);
+                        }
+                    });
+                }
+            },
+
+            // --- Step 2: Password Cracking ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 2: WEAK PASSWORDS</h2>
+                            <p class="text-gray-300 mb-6">'The Cipher' must be arrogant. We found a locked file on a public server they once used. It's likely an old file, but it might hold a clue. Break the password.</p>
+                            <div class="challenge-area bg-gray-800 p-6 rounded-lg border border-gray-700 text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-cyan-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                <h3 class="text-xl text-white mb-2">FILE LOCKED: treasure_map.txt</h3>
+                                <p class="text-gray-400 mb-4">HINT: "The password is the name of the most common password in 2023."</p>
+                                <input type="text" id="step2-input" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Enter password...">
+                                <button id="step2-btn" class="w-full mt-4 bg-cyan-600 text-black font-bold py-2 px-6 rounded-lg hover:bg-cyan-500 transition">
+                                    UNLOCK FILE
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('step2-btn').addEventListener('click', () => {
+                        const answer = document.getElementById('step2-input').value.trim();
+                        if (answer === "123456") {
+                            showMessage("FILE UNLOCKED. Rookie mistake. The file contains a note: 'Beware of deceptive emails—they might lead you astray.'", false);
+                        } else {
+                            showMessage("ACCESS DENIED. That's not it. Think simpler. What's the *most* common password?", true);
+                        }
+                    });
+                }
+            },
+
+            // --- Step 3: Phishing ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 3: PHISHING AWARENESS</h2>
+                            <p class="text-gray-300 mb-6">Just as the clue warned... an email just hit your inbox. It looks... suspicious. 'The Cipher' is trying to trick you. Don't fall for it.</p>
+                            
+                            <div class="challenge-area">
+                                <!-- This is the simulated phishing email -->
+                                <div class="phishing-email text-gray-900">
+                                    <p class="text-sm text-gray-600"><strong>From:</strong> Cyber Treasure Hunt Support &lt;support@cyber-tr3asure.com&gt;</p>
+                                    <p class="text-sm text-gray-600"><strong>Subject:</strong> CONGRATULATIONS! You've Won a Prize!</p>
+                                    <hr class="my-3">
+                                    <p class="mb-4">Dear Agent,</p>
+                                    <p class="mb-4">You've been selected as a winner in our cyber hunt! Your skills are impressive. To claim your exclusive agent prize, you must click the link below imediately.</p>
+                                    <p class="mb-6">This is a time-sensitive offer. Click now to verify your account and recieve your reward!</p>
+                                    <button id="phish-link-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition text-lg">
+                                        CLICK HERE TO CLAIM YOUR PRIZE!
+                                    </button>
+                                </div>
+                                
+                                <!-- The correct action -->
+                                <button id="report-btn" class="w-full mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition">
+                                    REPORT AS PHISHING
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('phish-link-btn').addEventListener('click', () => {
+                        showMessage("AGENT COMPROMISED! You clicked the link! Your system is now locked. MISSION FAILED. ...Rebooting system... Try again.", true);
+                        // In a real game, this might reset the step, but here we'll just show the error.
+                    });
+                    document.getElementById('report-btn').addEventListener('click', () => {
+                        showMessage("GOOD CALL, AGENT. That was a phishing attempt. You spotted the red flags. The trace on the email gives us a new lead... another encrypted message.", false);
+                    });
+                }
+            },
+
+            // --- Step 4: Encryption Puzzle 2 ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 4: ENCRYPTION PUZZLE</h2>
+                            <p class="text-gray-300 mb-6">By avoiding the trap, you found the criminal's hidden message server. This message was pinned. It must be important. Decode it.</p>
+                            <div class="challenge-area">
+                                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
+                                    <p class="text-green-400 text-2xl text-center">> KHOOR ZRUOG!</p>
+                                </div>
+                                <label for="step4-input" class="block text-cyan-400 mb-2">DECRYPTED MESSAGE:</label>
+                                <input type="text" id="step4-input" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Enter decoded text here...">
+                                <button id="step4-btn" class="w-full mt-4 bg-cyan-600 text-black font-bold py-2 px-6 rounded-lg hover:bg-cyan-500 transition">
+                                    DECRYPT
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('step4-btn').addEventListener('click', () => {
+                        const answer = document.getElementById('step4-input').value.trim().toLowerCase();
+                        if (answer === "hello world!") {
+                            showMessage("DECRYPTION SUCCESSFUL. It's a classic. This seems to be a test message for a system scan. We've tracked the system's IP. You're going in.", false);
+                        } else {
+                            showMessage("DECRYPTION FAILED. Incorrect. This one might use a different shift. (Hint: A=D)", true);
+                        }
+                    });
+                }
+            },
+
+            // --- Step 5: Malware Detection ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 5: MALWARE DETECTION</h2>
+                            <p class="text-gray-300 mb-6">You're in. This is a compromised file server 'The Cipher' uses. It's littered with traps. One of these files is malware, a logic bomb waiting to go off. Find it and quarantine it before it wipes the server (and our clue).</p>
+                            <div class="challenge-area bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h3 class="text-white text-lg mb-3">C:/Server_Files/</h3>
+                                <div id="file-list" class="space-y-2">
+                                    <div class="file-item" data-file="safe">📄 <span class="ml-2">meeting_notes.txt</span></div>
+                                    <div class="file-item" data-file="safe">🖼️ <span class="ml-2">vacation_photo.jpg</span></div>
+                                    <div class="file-item" data-file="malware">💻 <span class="ml-2">suspicious_file.exe</span></div>
+                                    <div class="file-item" data-file="safe">📈 <span class="ml-2">report_Q4.pdf</span></div>
+                                    <div class="file-item" data-file="safe">📄 <span class="ml-2">server_logs.txt</span></div>
+                                </div>
+                                <button id="quarantine-btn" class="w-full mt-4 bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-yellow-500 transition opacity-50" disabled>
+                                    QUARANTINE SELECTED
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    let selectedFile = null;
+                    const files = document.querySelectorAll('.file-item');
+                    const quarantineBtn = document.getElementById('quarantine-btn');
+
+                    files.forEach(file => {
+                        file.addEventListener('click', () => {
+                            files.forEach(f => f.classList.remove('selected'));
+                            file.classList.add('selected');
+                            selectedFile = file.getAttribute('data-file');
+                            quarantineBtn.disabled = false;
+                            quarantineBtn.classList.remove('opacity-50');
+                        });
+                    });
+
+                    quarantineBtn.addEventListener('click', () => {
+                        if (selectedFile === 'malware') {
+                            showMessage("MALWARE QUARANTINED. Nice catch, Agent. Executable files from unknown sources are a major threat. With the malware neutralized, we found a hidden config file.", false);
+                        } else if (selectedFile === 'safe') {
+                            showMessage("FILE IS CLEAN. Scan complete. No threat detected. Keep looking.", true);
+                        } else {
+                            showMessage("Select a file to quarantine.", true);
+                        }
+                    });
+                }
+            },
+
+            // --- Step 6: Firewall ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 6: NETWORK SECURITY</h2>
+                            <p class="text-gray-300 mb-6">The config file points to 'The Cipher's' main server at <code class="text-green-400">192.168.1.100</code>. But it's hidden behind a firewall. We need to open <code class="text-green-400">port 8080</code> to access their control panel. Configure the firewall rule.</p>
+                            
+                            <div class="challenge-area bg-gray-800 p-6 rounded-lg border border-gray-700">
+                                <h3 class="text-white text-xl mb-4 text-center">FIREWALL CONTROL PANEL</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="fw-ip" class="block text-cyan-400 mb-2">IP ADDRESS:</label>
+                                        <input type="text" id="fw-ip" class="w-full p-2 bg-gray-900 border border-gray-700 rounded text-white" placeholder="e.g., 192.168.1.1">
+                                    </div>
+                                    <div>
+                                        <label for="fw-port" class="block text-cyan-400 mb-2">PORT:</label>
+                                        <input type="text" id="fw-port" class="w-full p-2 bg-gray-900 border border-gray-700 rounded text-white" placeholder="e.g., 80">
+                                    </div>
+                                    <div>
+                                        <label for="fw-action" class="block text-cyan-400 mb-2">ACTION:</label>
+                                        <select id="fw-action" class="w-full p-2 bg-gray-900 border border-gray-700 rounded text-white">
+                                            <option value="deny">DENY</option>
+                                            <option value="allow">ALLOW</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button id="fw-btn" class="w-full mt-6 bg-cyan-600 text-black font-bold py-2 px-6 rounded-lg hover:bg-cyan-500 transition">
+                                    APPLY RULE
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('fw-btn').addEventListener('click', () => {
+                        const ip = document.getElementById('fw-ip').value.trim();
+                        const port = document.getElementById('fw-port').value.trim();
+                        const action = document.getElementById('fw-action').value;
+
+                        if (ip === '192.168.1.100' && port === '8080' && action === 'allow') {
+                            showMessage("RULE APPLIED. Port 8080 is open. We're in... but they know we're here. They're trying a last-ditch effort!", false);
+                        } else {
+                            showMessage("INVALID RULE. The connection was blocked. Check the IP, Port, and Action. We have to get this right.", true);
+                        }
+                    });
+                }
+            },
+
+            // --- Step 7: Social Engineering ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content">
+                            <h2 class="text-2xl text-cyan-400 glow mb-2">STEP 7: SOCIAL ENGINEERING</h2>
+                            <p class="text-gray-300 mb-6">Your console is ringing. It's an inbound call! 'The Cipher' is trying to trick you personally. This is the final test, Agent. Don't let them win.</p>
+                            
+                            <div class="challenge-area">
+                                <div class="bg-gray-800 p-6 rounded-lg border-2 border-red-500 ringing">
+                                    <h3 class="text-red-400 text-xl mb-3 text-center glow">INCOMING CALL...</h3>
+                                    <p class="text-white text-lg text-center mb-1">CALLER ID: "HQ IT SUPPORT"</p>
+                                    <p class="text-white text-lg text-center mb-4">"</p>
+                                    <p class="text-white text-lg text-center mb-6">"This is IT Support! We've detected an unauthorized breach on your console. We need to verify your identity immediately. Please state your agent password to secure your account!"</p>
+                                    
+                                    <div class="flex flex-col md:flex-row gap-4">
+                                        <button id="give-pass-btn" class="flex-1 bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-500 transition">
+                                            "My password is..."
+                                        </button>
+                                        <button id="hangup-btn" class="flex-1 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition">
+                                            HANG UP & REPORT
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('give-pass-btn').addEventListener('click', () => {
+                        showMessage("FATAL ERROR. You gave them the password! 'The Cipher' has locked you out and escaped! ...Rebooting from backup... Never give your password to anyone.", true);
+                    });
+                    
+                    document.getElementById('hangup-btn').addEventListener('click', () => {
+                        showMessage("THREAT NEUTRALIZED. Legitimate IT support will NEVER ask for your password. You've passed the final test. We've traced their call. We've got them. CASE CLOSED.", false);
+                    });
+                }
+            },
+
+            // --- Step 8: Final Screen ---
+            {
+                render: () => {
+                    gameContent.innerHTML = `
+                        <div class="step-content text-center">
+                            <h2 class="text-4xl text-cyan-400 glow mb-4">CASE CLOSED</h2>
+                            <div class="text-6xl mb-4">👑</div>
+                            <p class="text-2xl text-white mb-4">Congratulations! You've successfully tracked 'The Cipher' and proven your skills.</p>
+                            <p class="text-xl text-gray-300 mb-8">For your outstanding service, you are hereby promoted to the rank of:</p>
+                            
+                            <div class="bg-gray-800 p-6 rounded-lg border-2 border-cyan-500">
+                                <h3 class="text-3xl text-white mb-2">TRUE AGENT</h3>
+                                <p class="text-2xl text-cyan-400 glow">AGENT ID: 007</p>
+                            </div>
+
+                            <p class="text-lg text-white mt-8 mb-4">You've earned your digital crown. Share your success and spread awareness!</p>
+                            <p class="text-xl text-cyan-400 font-bold">Screenshot this screen and share it on Instagram!</p>
+                            
+                            <button id="restart-btn" class="w-full md:w-auto mt-8 bg-cyan-600 text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-cyan-500 transition duration-300">
+                                PLAY AGAIN
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('restart-btn').addEventListener('click', () => {
+                        currentStep = 0;
+                        renderStep(0);
+                    });
+                }
+            }
+        ];
+
+        // --- Main Render Function ---
+        function renderStep(stepIndex) {
+            currentStep = stepIndex;
+            if (steps[stepIndex]) {
+                steps[stepIndex].render();
+            } else {
+                console.error('Invalid step index:', stepIndex);
+            }
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStep(0);
+        });
+    </script>
+
+</body>
+</html>
